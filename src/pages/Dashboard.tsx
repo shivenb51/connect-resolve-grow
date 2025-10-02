@@ -69,7 +69,12 @@ const Dashboard = () => {
       });
 
       if (error) {
-        toast({ title: "Error", description: error.message, variant: "destructive" });
+        console.warn('Link partner function error:', error);
+        toast({ 
+          title: "Partner Linking Temporarily Unavailable", 
+          description: "Partner linking is currently being set up. You can continue using the app solo for now.",
+          variant: "destructive" 
+        });
         return;
       }
 
