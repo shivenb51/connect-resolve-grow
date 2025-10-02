@@ -1,0 +1,8 @@
+
+project_id = "tptjvrwnyslfxzrjwacl"
+
+[functions.analyze-situation]
+verify_jwt = true
+
+[functions.link-partner]
+verify_jwt = true
