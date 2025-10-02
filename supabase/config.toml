@@ -8,4 +8,4 @@ project_id = "tptjvrwnyslfxzrjwacl"
 verify_jwt = true
 
 [functions.link-partner]
-verify_jwt = true
+verify_jwt = truen
