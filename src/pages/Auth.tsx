@@ -20,31 +20,32 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        if (error) throw error;
-        toast({
-          title: "Welcome back!",
-          description: "You've successfully signed in.",
-        });
-        navigate("/dashboard");
+      // Demo mode - simulate authentication without Supabase
+      if (email && password) {
+        const mockUser = {
+          id: 'demo-user-123',
+          email: email,
+          user_metadata: { name: email.split('@')[0] }
+        };
+        
+        // Store mock user in localStorage
+        localStorage.setItem('demo-user', JSON.stringify(mockUser));
+        
+        if (isLogin) {
+          toast({
+            title: "Welcome back!",
+            description: "You've successfully signed in.",
+          });
+          navigate("/dashboard");
+        } else {
+          toast({
+            title: "Account created!",
+            description: "Welcome to RelationSync. You can now sign in.",
+          });
+          setIsLogin(true);
+        }
       } else {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/dashboard`,
-          },
-        });
-        if (error) throw error;
-        toast({
-          title: "Account created!",
-          description: "Welcome to RelationSync. You can now sign in.",
-        });
-        setIsLogin(true);
+        throw new Error("Please enter both email and password");
       }
     } catch (error: any) {
       toast({

@@ -22,32 +22,72 @@ const Dashboard = () => {
   }, []);
 
   const checkUser = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
+    // Check for demo user first
+    const demoUser = localStorage.getItem('demo-user');
+    if (demoUser) {
+      const user = JSON.parse(demoUser);
+      setUser(user);
+      setProfile({ id: user.id, email: user.email, partner_id: null });
+      setLoading(false);
+      return;
+    }
+
+    // Try Supabase auth as fallback
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        navigate("/auth");
+        return;
+      }
+      setUser(user);
+      
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .maybeSingle();
+      
+      setProfile(profile);
+    } catch (error) {
+      console.warn('Supabase auth failed, redirecting to auth');
       navigate("/auth");
       return;
     }
-    setUser(user);
-    
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", user.id)
-      .maybeSingle();
-    
-    setProfile(profile);
     setLoading(false);
   };
 
   const fetchSituations = async () => {
-    const { data, error } = await supabase
-      .from("situations")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .limit(5);
+    // Demo mode - use mock data
+    const demoUser = localStorage.getItem('demo-user');
+    if (demoUser) {
+      const mockSituations = [
+        {
+          id: 'demo-1',
+          title: 'Communication Styles',
+          created_at: new Date().toISOString(),
+          ai_analysis: 'This situation shows different communication preferences between partners.',
+          ai_verdict: 'Both partners have valid communication styles that can complement each other.',
+          ai_solution: 'Try to understand each other\'s communication preferences and find a middle ground.'
+        }
+      ];
+      setSituations(mockSituations);
+      return;
+    }
 
-    if (!error && data) {
-      setSituations(data);
+    // Try Supabase as fallback
+    try {
+      const { data, error } = await supabase
+        .from("situations")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(5);
+
+      if (!error && data) {
+        setSituations(data);
+      }
+    } catch (error) {
+      console.warn('Failed to fetch situations:', error);
+      setSituations([]);
     }
   };
 

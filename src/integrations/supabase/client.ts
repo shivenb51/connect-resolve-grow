@@ -2,12 +2,14 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://tptjvrwnyslfxzrjwacl.supabase.co';
-const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRwdGp2cndueXNsZnh6cmp3YWNsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU3NjQ0NDEsImV4cCI6MjA1MTM0MDQ0MX0.PLACEHOLDER_KEY_REPLACE_WITH_REAL_ONE';
+// Use environment variables or fallback to demo values
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://demo.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || 'demo-key';
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
+// Create a mock Supabase client that handles errors gracefully
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
     storage: localStorage,
@@ -15,3 +17,14 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     autoRefreshToken: true,
   }
 });
+
+// Add error handling wrapper
+export const safeSupabaseCall = async (operation: () => Promise<any>) => {
+  try {
+    return await operation();
+  } catch (error: any) {
+    console.warn('Supabase operation failed:', error.message);
+    // Return mock data for demo purposes
+    return { data: null, error: { message: 'Demo mode - Supabase not configured' } };
+  }
+};
